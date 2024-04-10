@@ -2,7 +2,7 @@ import pod from "../models/pod";
 import { Pod } from "../types/common";
 import { connectDatabase } from "../util/db";
 
-export default async function AddToLocalDB(pods: Pod[]) {
+export default async function addToLocalDB(pods: Pod[]) {
   await connectDatabase();
   let added = 0;
   for (let podcast of pods) {
