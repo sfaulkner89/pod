@@ -5,6 +5,7 @@ import { tss } from "tss-react";
 import { Pod } from "../types/common";
 import PodButtons from "./PodButtons";
 import Rater from "./Rater";
+import { keyframes } from "@emotion/react";
 
 type Props = {
   setFootMenu: (value: null) => void;
@@ -36,6 +37,7 @@ export default function FootMenu({ setFootMenu, pod }: Props) {
   return (
     <div className={s.background} ref={backgroundRef}>
       <div className={s.header}>
+        <img src={pod.image} alt={pod.title} className={s.image} />
         <p className={s.title}>{pod.title}</p>
         <p>{pod.episodeCount} episodes</p>
       </div>
@@ -57,14 +59,14 @@ export default function FootMenu({ setFootMenu, pod }: Props) {
   );
 }
 
-// const slideUp = keyframes`
-//   from {
-//     transform: translateY(100%);
-//   }
-//   to {
-//     transform: translateY(0);
-//   }
-// `;
+const slideUp = keyframes`
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+`;
 
 const useStyles = tss.create({
   background: {
@@ -111,7 +113,12 @@ const useStyles = tss.create({
     backgroundColor: "rgb(40,40,40)",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    // animation: `${slideUp} 0.5s ease-in-out `,
+    animation: `${slideUp} 0.5s ease-in-out `,
+  },
+  image: {
+    width: 150,
+    height: 150,
+    borderRadius: "5px",
   },
   header: {
     display: "flex",

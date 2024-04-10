@@ -31,9 +31,8 @@ export default function PodDisplay({ pod, setFootMenu, footMenu }: Props) {
   return (
     <div
       className={s.container}
-      onMouseEnter={() => setHovered(true)}
+      onMouseEnter={(e) => contextHandler(e)}
       onMouseLeave={() => setHovered(false)}
-      onContextMenu={contextHandler}
     >
       <div className={s.veil}>
         <div className={s.infoContainer}>
