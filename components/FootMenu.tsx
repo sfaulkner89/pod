@@ -57,16 +57,14 @@ export default function FootMenu({ setFootMenu, pod }: Props) {
   );
 }
 
-import { keyframes } from "@emotion/react";
-
-const slideUp = keyframes`
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-`;
+// const slideUp = keyframes`
+//   from {
+//     transform: translateY(100%);
+//   }
+//   to {
+//     transform: translateY(0);
+//   }
+// `;
 
 const useStyles = tss.create({
   background: {
@@ -113,7 +111,7 @@ const useStyles = tss.create({
     backgroundColor: "rgb(40,40,40)",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    animation: `${slideUp} 0.5s ease-in-out `,
+    // animation: `${slideUp} 0.5s ease-in-out `,
   },
   header: {
     display: "flex",
