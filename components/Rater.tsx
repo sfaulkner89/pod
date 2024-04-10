@@ -1,3 +1,5 @@
+"use client";
+
 import React, { ReactElement } from "react";
 import { tss } from "tss-react";
 import ratingHandler from "../handlers/ratingHandler";
