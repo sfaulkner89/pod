@@ -34,12 +34,20 @@ export default function FootMenu({ setFootMenu, pod }: Props) {
 
   const { classes: s } = useStyles();
   const [rating, setRating] = React.useState(pod.rating ?? 0);
+  const [showDesc, setShowDesc] = React.useState(true);
   return (
     <div className={s.background} ref={backgroundRef}>
       <div className={s.header}>
         <img src={pod.image} alt={pod.title} className={s.image} />
         <p className={s.title}>{pod.title}</p>
-        <p>{pod.episodeCount} episodes</p>
+        {showDesc ? (
+          <p className={s.description}>{pod.description}</p>
+        ) : (
+          <p className={s.descTease} onClick={() => setShowDesc(true)}>
+            description
+          </p>
+        )}
+        <p className={s.episodeCount}>{pod.episodeCount} episodes</p>
       </div>
       <div className={s.container} ref={containerRef}>
         <PodButtons sub share like size={30} />
@@ -131,6 +139,26 @@ const useStyles = tss.create({
     fontWeight: "bold",
     padding: 10,
     textAlign: "center",
+  },
+  descTease: {
+    color: "blueviolet",
+    cursor: "pointer",
+    textDecoration: "underline",
+  },
+  description: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    display: "-webkit-box",
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: "vertical",
+    marginBottom: 10,
+    width: "90%",
+    textAlign: "center",
+  },
+  episodeCount: {
+    color: "white",
+    fontSize: 15,
+    fontWeight: "bold",
   },
   button: {
     backgroundColor: "transparent",

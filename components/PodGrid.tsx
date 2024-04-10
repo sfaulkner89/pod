@@ -38,7 +38,7 @@ const useStyles = tss.create({
     width: "100%",
     padding: 10,
     "@media (max-width: 768px)": {
-      gridTemplateColumns: "1fr 1fr",
+      gridTemplateColumns: "1fr 1fr 1fr",
     },
   },
 });

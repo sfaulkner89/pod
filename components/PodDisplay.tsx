@@ -61,7 +61,7 @@ const useStyles = tss
   .create(({ hovered }) => ({
     container: {
       width: "100%",
-      height: 300,
+      height: 200,
       position: "relative",
       borderRadius: 10,
       overflow: "hidden",

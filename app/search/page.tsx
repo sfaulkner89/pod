@@ -35,8 +35,17 @@ export default function Search() {
     setSearchTerm(e.target.value);
   };
 
+  useEffect(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement?.blur();
+    }
+  }, [footMenu]);
+
   return (
-    <div className={s.container}>
+    <div
+      className={s.container}
+      style={{ overflowY: footMenu ? "hidden" : "scroll" }}
+    >
       <img src="/vault.webp" alt="vault" className={s.image} />
       <Input
         placeholder="Search"
