@@ -1,3 +1,4 @@
+"use client";
 import { Input } from "@mui/material";
 import React, { useEffect } from "react";
 import PodGrid from "../../components/PodGrid";
