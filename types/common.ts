@@ -30,4 +30,5 @@ export type Pod = {
   newestItemPubdate: number;
   //
   rating?: number;
+  timesSearched: number;
 };
