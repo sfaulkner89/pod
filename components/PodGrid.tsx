@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { tss } from "tss-react";
 import { Pod } from "../types/common";

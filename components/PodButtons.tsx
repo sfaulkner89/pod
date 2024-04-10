@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { MdDynamicFeed } from "react-icons/md";
 import { FaRegStar } from "react-icons/fa";
