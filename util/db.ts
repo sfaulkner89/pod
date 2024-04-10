@@ -5,7 +5,7 @@ export async function connectDatabase() {
     return;
   }
   const uri =
-    process.env.NODE_ENV === "production"
+    process.env.VERCEL_ENV === "production"
       ? process.env.MONGODB_URI_PROD
       : process.env.MONGODB_URI_LOCAL;
 
