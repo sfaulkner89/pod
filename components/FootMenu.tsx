@@ -15,6 +15,9 @@ type Props = {
 export default function FootMenu({ setFootMenu, pod }: Props) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const backgroundRef = React.useRef<HTMLDivElement>(null);
+  const [rating, setRating] = React.useState(pod.rating ?? 0);
+  const [showDesc, setShowDesc] = React.useState(true);
+  const [imageSrc, setImageSrc] = React.useState(pod.image);
 
   useEffect(() => {
     const listener = (e: MouseEvent) => {
@@ -32,13 +35,22 @@ export default function FootMenu({ setFootMenu, pod }: Props) {
     return () => document.removeEventListener("click", listener);
   }, []);
 
+  const handleImageError = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
+    setImageSrc("/pod.webp"); // Set fallback image when an error occurs
+  };
+
   const { classes: s } = useStyles();
-  const [rating, setRating] = React.useState(pod.rating ?? 0);
-  const [showDesc, setShowDesc] = React.useState(true);
   return (
     <div className={s.background} ref={backgroundRef}>
       <div className={s.header}>
-        <img src={pod.image} alt={pod.title} className={s.image} />
+        <img
+          src={pod.image}
+          alt={pod.title}
+          className={s.image}
+          onError={handleImageError}
+        />
         <p className={s.title}>{pod.title}</p>
         {showDesc ? (
           <p className={s.description}>{pod.description}</p>
