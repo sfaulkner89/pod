@@ -17,7 +17,7 @@ const podClient2 = new PodcastIndexClient({
 export async function GET(req: NextRequest) {
   const res = await podClient2.search(req.nextUrl.searchParams.get("q") || "");
   try {
-    addToLocalDB(res.feeds as unknown as Pod[]);
+    await addToLocalDB(res.feeds as unknown as Pod[]);
   } catch (e) {
     console.error(e);
   }
