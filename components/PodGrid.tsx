@@ -2,26 +2,25 @@
 
 import React from "react";
 import { tss } from "tss-react";
-import { Pod } from "../types/common";
 import PodDisplay from "./PodDisplay";
+import { Episode, Pod } from "../types/models";
 
 interface Props {
-  pods: Pod[];
-  setFootMenu: React.Dispatch<React.SetStateAction<Pod | null>>;
-  footMenu: Pod | null;
+  pods: Pod[] | Episode[];
+  setFootMenu: React.Dispatch<React.SetStateAction<Pod | Episode | null>>;
+  footMenu: Pod | Episode | null;
 }
 
 export default function PodGrid({ pods, setFootMenu, footMenu }: Props) {
   const { classes: s } = useStyles();
   return (
     <div className={s.container}>
-      {pods.map((pod) => {
+      {pods.map((content) => {
         return (
           <PodDisplay
-            key={pod.id}
-            pod={pod}
-            setFootMenu={setFootMenu}
-            footMenu={footMenu}
+            key={content.id}
+            content={content}
+            onClick={setFootMenu}
           />
         );
       })}

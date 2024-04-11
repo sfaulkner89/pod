@@ -2,22 +2,40 @@
 
 import React, { useEffect } from "react";
 import { tss } from "tss-react";
-import { Pod } from "../types/common";
 import PodButtons from "./PodButtons";
 import Rater from "./Rater";
 import { keyframes } from "@emotion/react";
+import { Episode, Pod } from "../types/models";
+import getRating from "../handlers/server/getRating";
 
 type Props = {
   setFootMenu: (value: null) => void;
-  pod: Pod;
+  setSelectedPod: React.Dispatch<React.SetStateAction<Pod | null>>;
+  content: Pod | Episode;
 };
 
-export default function FootMenu({ setFootMenu, pod }: Props) {
+export default function FootMenu({
+  setFootMenu,
+  content,
+  setSelectedPod,
+}: Props) {
+  const isPod = "episodeCount" in content;
   const containerRef = React.useRef<HTMLDivElement>(null);
   const backgroundRef = React.useRef<HTMLDivElement>(null);
-  const [rating, setRating] = React.useState(pod.rating ?? 0);
+  const [rating, setRating] = React.useState(0);
   const [showDesc, setShowDesc] = React.useState(true);
-  const [imageSrc, setImageSrc] = React.useState(pod.image);
+  const [imageSrc, setImageSrc] = React.useState(content.image);
+
+  useEffect(() => {
+    const userRating = async () => {
+      const userRating = await getRating(
+        content._id!,
+        isPod ? "pod" : "episode"
+      );
+      setRating(userRating);
+    };
+    userRating();
+  }, []);
 
   useEffect(() => {
     const listener = (e: MouseEvent) => {
@@ -35,10 +53,8 @@ export default function FootMenu({ setFootMenu, pod }: Props) {
     return () => document.removeEventListener("click", listener);
   }, []);
 
-  const handleImageError = (
-    e: React.SyntheticEvent<HTMLImageElement, Event>
-  ) => {
-    setImageSrc("/pod.webp"); // Set fallback image when an error occurs
+  const handleImageError = () => {
+    setImageSrc("/content.webp"); // Set fallback image when an error occurs
   };
 
   const { classes: s } = useStyles();
@@ -46,28 +62,38 @@ export default function FootMenu({ setFootMenu, pod }: Props) {
     <div className={s.background} ref={backgroundRef}>
       <div className={s.header}>
         <img
-          src={pod.image}
-          alt={pod.title}
+          src={content.image}
+          alt={content.title}
           className={s.image}
           onError={handleImageError}
         />
-        <p className={s.title}>{pod.title}</p>
+        <p className={s.title}>{content.title}</p>
         {showDesc ? (
-          <p className={s.description}>{pod.description}</p>
+          <p className={s.description}>{content.description}</p>
         ) : (
           <p className={s.descTease} onClick={() => setShowDesc(true)}>
             description
           </p>
         )}
-        <p className={s.episodeCount}>{pod.episodeCount} episodes</p>
+        {isPod && (
+          <p className={s.episodeCount}>{content.episodeCount} episodes</p>
+        )}
       </div>
       <div className={s.container} ref={containerRef}>
         <PodButtons sub share like size={30} />
         <p>Rating</p>
         <Rater setRating={setRating} rating={rating} />
-        <button className={s.button} onClick={() => setFootMenu(null)}>
-          Share
-        </button>
+        {isPod && (
+          <button
+            className={s.button}
+            onClick={() => {
+              setSelectedPod(content);
+              setFootMenu(null);
+            }}
+          >
+            Search Episodes
+          </button>
+        )}
         <button className={s.button} onClick={() => setFootMenu(null)}>
           Add to list
         </button>

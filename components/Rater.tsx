@@ -2,7 +2,7 @@
 
 import React, { ReactElement } from "react";
 import { tss } from "tss-react";
-import ratingHandler from "../handlers/ratingHandler";
+import ratingHandler from "../handlers/client/ratingHandler";
 
 type Props = {
   rating?: number;

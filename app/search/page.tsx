@@ -1,17 +1,28 @@
 "use client";
-import { Input } from "@mui/material";
 import React, { useEffect } from "react";
 import PodGrid from "../../components/PodGrid";
-import { Pod } from "../../types/common";
 import FootMenu from "../../components/FootMenu";
-import s from "./page.module.css";
+import { tss } from "tss-react";
+import Input from "../../components/common/input";
+import Image from "next/image";
+import logo from "@/public/vault.webp";
+import { Episode, Pod } from "../../types/models";
+import Title from "../../components/common/Title";
+import searchEpisodes from "../../handlers/client/searchEpisodes";
+import searchPods from "../../handlers/client/searchPods";
+import { FaChevronLeft } from "react-icons/fa";
 
 let timeoutId: NodeJS.Timeout;
 
 export default function Search() {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [pods, setPods] = React.useState([]);
-  const [footMenu, setFootMenu] = React.useState<Pod | null>(null);
+  const [episodes, setEpisodes] = React.useState([]);
+  const [footMenu, setFootMenu] = React.useState<Pod | Episode | null>(null);
+  const [selectedPod, setSelectedPod] = React.useState<Pod | null>(null);
+  const [podSearchTerm, setPodSearchTerm] = React.useState("");
+
+  const { classes: s } = useStyles();
 
   useEffect(() => {
     if (searchTerm.length < 3) return;
@@ -21,10 +32,14 @@ export default function Search() {
 
     // Set a timeout to run the search after a delay.
     timeoutId = setTimeout(async () => {
-      const res = await fetch(`/api/search?q=${searchTerm}`);
-      const data = await res?.json();
-      if (!data) return;
-      setPods(data.feeds);
+      if (selectedPod) {
+        const data = await searchEpisodes(selectedPod.id!, searchTerm);
+        setEpisodes(data);
+        return;
+      }
+      const data = await searchPods(searchTerm);
+      setPods(data);
+      return;
     }, 500); // 500ms delay
 
     // Cleanup function to clear the timeout when the component unmounts.
@@ -46,14 +61,57 @@ export default function Search() {
       className={s.container}
       style={{ overflowY: footMenu ? "hidden" : "scroll" }}
     >
-      <img src="/vault.webp" alt="vault" className={s.image} />
-      <Input
-        placeholder="Search"
-        onChange={changeHandler}
-        className={s.search}
+      {selectedPod && (
+        <div className={s.backButton} onClick={() => setSelectedPod(null)}>
+          <FaChevronLeft />
+        </div>
+      )}
+      <Image
+        src={logo}
+        alt="vault"
+        className={s.image}
+        height={200}
+        width={200}
       />
-      <PodGrid pods={pods} footMenu={footMenu} setFootMenu={setFootMenu} />
-      {footMenu && <FootMenu pod={footMenu} setFootMenu={setFootMenu} />}
+      {selectedPod && <Title>{selectedPod?.title}</Title>}
+      <Input placeholder="Search" onChange={changeHandler} />
+      <PodGrid
+        pods={selectedPod ? episodes : pods}
+        footMenu={footMenu}
+        setFootMenu={setFootMenu}
+      />
+      {footMenu && (
+        <FootMenu
+          content={footMenu}
+          setFootMenu={setFootMenu}
+          setSelectedPod={setSelectedPod}
+        />
+      )}
     </div>
   );
 }
+
+const useStyles = tss.create(() => ({
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "10px",
+    width: "100%",
+    paddingTop: "20px",
+  },
+
+  image: {
+    width: "100%",
+    maxWidth: "200px",
+    borderRadius: "10px",
+  },
+  backButton: {
+    position: "fixed",
+    top: "10px",
+    left: "10px",
+    cursor: "pointer",
+    fontSize: "30px",
+  },
+}));

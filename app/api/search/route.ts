@@ -1,25 +1,42 @@
 //@ts-ignore
-import pod from "podcast-index-api";
 import PodcastIndexClient from "podcastdx-client";
 import { NextRequest } from "next/server";
-import addToLocalDB from "../../../handlers/addToLocalDB";
-import { Pod } from "../../../types/common";
+import addToLocalDB from "../../../handlers/server/addToLocalDB";
+import { Episode, Pod } from "../../../types/models";
 
 const { POD_API_KEY, POD_API_SECRET } = process.env;
 
-const podClient = pod(POD_API_KEY, POD_API_SECRET);
-
-const podClient2 = new PodcastIndexClient({
+export const podClient2 = new PodcastIndexClient({
   key: POD_API_KEY,
   secret: POD_API_SECRET,
 });
 
 export async function GET(req: NextRequest) {
-  const res = await podClient2.search(req.nextUrl.searchParams.get("q") || "");
+  const searchParams = req.nextUrl.searchParams;
+  const q = searchParams.get("q");
+  const podId = searchParams.get("podId");
+  if (podId && Number(podId) > 0) {
+    console.log("episode");
+    const res = await podClient2.episodesByFeedId(Number(podId));
+    let episodes;
+    try {
+      episodes = await addToLocalDB(
+        res.items as unknown as Episode[],
+        "episode"
+      );
+    } catch (e) {
+      console.error(e);
+    }
+    return Response.json(episodes, { status: 200 });
+  }
+  console.log(q);
+  const res = await podClient2.search(q || "");
+  console.log(res);
+  let pods;
   try {
-    await addToLocalDB(res.feeds as unknown as Pod[]);
+    pods = await addToLocalDB(res.feeds as unknown as Pod[], "pod");
   } catch (e) {
     console.error(e);
   }
-  return Response.json(res, { status: 200 });
+  return Response.json(pods, { status: 200 });
 }

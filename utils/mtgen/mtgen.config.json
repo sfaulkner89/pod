@@ -1,0 +1,5 @@
+{
+    "modelPath": "../models",
+    "output": "./types",
+    "tsConfig": "./tsconfig.mtgen.json"
+  }

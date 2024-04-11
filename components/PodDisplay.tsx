@@ -3,18 +3,17 @@
 import React, { useState } from "react";
 import { tss } from "tss-react";
 import PodButtons from "./PodButtons";
-import { Pod } from "../types/common";
+import { Episode, Pod } from "../types/models";
+import { format } from "date-fns";
 
 interface Props {
-  pod: Pod;
-  setFootMenu: React.Dispatch<React.SetStateAction<Pod | null>>;
-  footMenu: Pod | null;
+  content: Pod | Episode;
+  onClick: React.Dispatch<React.SetStateAction<Pod | Episode | null>>;
 }
 
-export default function PodDisplay({ pod, setFootMenu, footMenu }: Props) {
+export default function PodDisplay({ content, onClick }: Props) {
   const [hovered, setHovered] = useState(false);
-  const [imageError, setImageError] = useState(false);
-  const [imageSrc, setImageSrc] = useState(pod.image);
+  const [imageSrc, setImageSrc] = useState(content.image);
   const { classes: s } = useStyles({ hovered });
 
   const handleImageError = (
@@ -25,7 +24,7 @@ export default function PodDisplay({ pod, setFootMenu, footMenu }: Props) {
 
   const contextHandler = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
-    setFootMenu(pod);
+    onClick(content);
   };
 
   return (
@@ -36,9 +35,15 @@ export default function PodDisplay({ pod, setFootMenu, footMenu }: Props) {
     >
       <div className={s.veil}>
         <div className={s.infoContainer}>
-          <h2>{pod.title}</h2>
-          <p className={s.description}>{pod.description}</p>
-          <p>Episodes: {pod.episodeCount}</p>
+          <h2>{content.title}</h2>
+          <p className={s.description}>{content.description}</p>
+          {"episodeCount" in content && <p>Episodes: {content.episodeCount}</p>}
+          {"datePublished" in content && (
+            <p>
+              Date Published: {format(content.datePublished!, "dd mm yyyy")}
+            </p>
+          )}
+          {"duration" in content && <p>Duration: {content.duration}</p>}
         </div>
         <div className={s.veilFooter}>
           <PodButtons sub rate share />
@@ -47,7 +52,7 @@ export default function PodDisplay({ pod, setFootMenu, footMenu }: Props) {
       {
         <img
           src={imageSrc}
-          alt={pod.title}
+          alt={content.title}
           className={s.image}
           onError={handleImageError}
         />
@@ -61,6 +66,7 @@ const useStyles = tss
   .create(({ hovered }) => ({
     container: {
       width: "100%",
+      minWidth: 100,
       height: 200,
       position: "relative",
       borderRadius: 10,
