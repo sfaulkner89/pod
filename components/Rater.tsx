@@ -6,7 +6,7 @@ import ratingHandler from "../handlers/client/ratingHandler";
 
 type Props = {
   rating?: number;
-  setRating: React.Dispatch<React.SetStateAction<number>>;
+  setRating: (rating: number) => void;
 };
 
 export default function Rater({ rating = 0, setRating }: Props) {

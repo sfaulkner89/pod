@@ -1,16 +1,21 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { ReactEventHandler, useEffect } from "react";
 import { tss } from "tss-react";
 import PodButtons from "./PodButtons";
 import Rater from "./Rater";
 import { keyframes } from "@emotion/react";
 import { Episode, Pod } from "../types/models";
 import getRating from "../handlers/server/getRating";
+import Image from "next/image";
+import toggleLike from "../handlers/server/toggleFavorite";
+import getContentInfo from "../handlers/server/getRating";
+import changeRating from "../handlers/server/changeRating";
 
 type Props = {
   setFootMenu: (value: null) => void;
   setSelectedPod: React.Dispatch<React.SetStateAction<Pod | null>>;
+  selectedPod: Pod | null;
   content: Pod | Episode;
 };
 
@@ -18,23 +23,30 @@ export default function FootMenu({
   setFootMenu,
   content,
   setSelectedPod,
+  selectedPod,
 }: Props) {
   const isPod = "episodeCount" in content;
   const containerRef = React.useRef<HTMLDivElement>(null);
   const backgroundRef = React.useRef<HTMLDivElement>(null);
-  const [rating, setRating] = React.useState(0);
+  const [info, setInfo] = React.useState({
+    rating: 0,
+    liked: false,
+  });
   const [showDesc, setShowDesc] = React.useState(true);
   const [imageSrc, setImageSrc] = React.useState(content.image);
 
   useEffect(() => {
-    const userRating = async () => {
-      const userRating = await getRating(
+    const userInfo = async () => {
+      const userInfo = await getContentInfo(
         content._id!,
         isPod ? "pod" : "episode"
       );
-      setRating(userRating);
+      setInfo({
+        rating: userInfo?.rating || 0,
+        liked: userInfo?.liked || false,
+      });
     };
-    userRating();
+    userInfo();
   }, []);
 
   useEffect(() => {
@@ -54,18 +66,36 @@ export default function FootMenu({
   }, []);
 
   const handleImageError = () => {
-    setImageSrc("/content.webp"); // Set fallback image when an error occurs
+    setImageSrc(selectedPod?.image ?? "/pod.webp"); // Set fallback image when an error occurs
   };
 
-  const { classes: s } = useStyles();
+  const like = () => {
+    toggleLike(content._id, isPod ? "pod" : "episode");
+    setInfo((info) => ({
+      ...info,
+      liked: !info.liked,
+    }));
+  };
+
+  const rate = (newRating: number) => {
+    changeRating(content._id!, isPod ? "pod" : "episode", newRating);
+    setInfo((info) => ({
+      ...info,
+      rating: newRating,
+    }));
+  };
+
+  const { classes: s } = useStyles({ liked: info.liked });
   return (
     <div className={s.background} ref={backgroundRef}>
       <div className={s.header}>
-        <img
-          src={content.image}
-          alt={content.title}
+        <Image
+          src={imageSrc!}
+          alt={content.title!}
           className={s.image}
           onError={handleImageError}
+          width={200}
+          height={200}
         />
         <p className={s.title}>{content.title}</p>
         {showDesc ? (
@@ -82,7 +112,7 @@ export default function FootMenu({
       <div className={s.container} ref={containerRef}>
         <PodButtons sub share like size={30} />
         <p>Rating</p>
-        <Rater setRating={setRating} rating={rating} />
+        <Rater setRating={rate} rating={info.rating} />
         {isPod && (
           <button
             className={s.button}
@@ -94,8 +124,8 @@ export default function FootMenu({
             Search Episodes
           </button>
         )}
-        <button className={s.button} onClick={() => setFootMenu(null)}>
-          Add to list
+        <button className={s.likeButton} onClick={like}>
+          Like
         </button>
         <button className={s.button} onClick={() => setFootMenu(null)}>
           Done
@@ -114,7 +144,7 @@ const slideUp = keyframes`
   }
 `;
 
-const useStyles = tss.create({
+const useStyles = tss.withParams<{ liked: boolean }>().create((liked) => ({
   background: {
     position: "fixed",
     display: "flex",
@@ -208,4 +238,14 @@ const useStyles = tss.create({
     paddingTop: 5,
     paddingBottom: 5,
   },
-});
+  likeButton: {
+    backgroundColor: liked ? "red" : "transparent",
+    border: "none",
+    boxShadow: "none",
+    color: liked ? "green" : "white",
+    cursor: "pointer",
+    fontSize: 30,
+    paddingTop: 5,
+    paddingBottom: 5,
+  },
+}));

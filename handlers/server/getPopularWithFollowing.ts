@@ -1,8 +1,10 @@
 import user from "../../models/user";
 import { Episode, Pod } from "../../types/models";
+import { connectDatabase } from "../../utils/db";
 import { createClient } from "../../utils/supabase/server";
 
 const getPopularWithFollowing = async () => {
+  await connectDatabase();
   const supabase = createClient();
   const authId = (await supabase.auth.getUser()).data.user?.id;
   if (!authId) {

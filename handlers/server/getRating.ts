@@ -3,15 +3,16 @@
 import user from "../../models/user";
 import podRating from "../../models/podRating";
 import episodeRating from "../../models/episodeRating";
+import podLike from "../../models/podLike";
+import episodeLike from "../../models/episodeLike";
 import { createClient } from "../../utils/supabase/server";
 import { connectDatabase } from "../../utils/db";
-import mongoose, { ObjectId } from "mongoose";
+import mongoose from "mongoose";
 
-const getRating = async (
+const getContentInfo = async (
   contentId: mongoose.Types.ObjectId,
   type: "pod" | "episode"
 ) => {
-  console.log("contentId", contentId, "type", type);
   await connectDatabase();
   const supabase = createClient();
   const authId = (await supabase.auth.getUser()).data.user?.id;
@@ -22,14 +23,31 @@ const getRating = async (
 
   const isPod = type === "pod";
 
-  const rating = isPod
-    ? await podRating.findOne({ podId: contentId, userId: currentUser._id })
-    : await episodeRating.findOne({
-        episodeId: contentId,
-        userId: currentUser._id,
-      });
+  const rating =
+    (isPod
+      ? await podRating.findOne({ podId: contentId, userId: currentUser._id })
+      : await episodeRating.findOne({
+          episodeId: contentId,
+          userId: currentUser._id,
+        })
+    )?.rating ?? 0;
 
-  return rating;
+  const liked =
+    (isPod
+      ? await podLike.findOne({
+          podId: contentId,
+          userId: currentUser._id,
+        })
+      : await episodeLike.findOne({
+          episodeId: contentId,
+          userId: currentUser._id,
+        })
+    )?.liked ?? false;
+
+  return {
+    rating: rating,
+    liked: liked,
+  };
 };
 
-export default getRating;
+export default getContentInfo;

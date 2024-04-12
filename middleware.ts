@@ -4,6 +4,7 @@ import {
   updateSession,
 } from "@/utils/supabase/middleware";
 import { default as appConfig } from "@/config/config";
+import { connectDatabase } from "./utils/db";
 
 export async function middleware(req: NextRequest) {
   const supabase = createSupabaseReqResClient(req, NextResponse.next());
@@ -26,7 +27,6 @@ export async function middleware(req: NextRequest) {
   ) {
     return NextResponse.redirect(`${baseUrl}/dashboard`);
   }
-
   return await updateSession(req);
 }
 

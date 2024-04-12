@@ -9,18 +9,25 @@ interface Props {
   pods: Pod[] | Episode[];
   setFootMenu: React.Dispatch<React.SetStateAction<Pod | Episode | null>>;
   footMenu: Pod | Episode | null;
+  selectedPod: Pod | null;
 }
 
-export default function PodGrid({ pods, setFootMenu, footMenu }: Props) {
+export default function PodGrid({
+  pods,
+  setFootMenu,
+  footMenu,
+  selectedPod,
+}: Props) {
   const { classes: s } = useStyles();
   return (
     <div className={s.container}>
       {pods.map((content) => {
         return (
           <PodDisplay
-            key={content.id}
+            key={content._id.toString()}
             content={content}
             onClick={setFootMenu}
+            selectedPod={selectedPod}
           />
         );
       })}

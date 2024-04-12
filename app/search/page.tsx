@@ -33,7 +33,11 @@ export default function Search() {
     // Set a timeout to run the search after a delay.
     timeoutId = setTimeout(async () => {
       if (selectedPod) {
-        const data = await searchEpisodes(selectedPod.id!, searchTerm);
+        const data = await searchEpisodes(
+          selectedPod._id.toString(),
+          selectedPod.url!,
+          searchTerm
+        );
         setEpisodes(data);
         return;
       }
@@ -79,12 +83,14 @@ export default function Search() {
         pods={selectedPod ? episodes : pods}
         footMenu={footMenu}
         setFootMenu={setFootMenu}
+        selectedPod={selectedPod}
       />
       {footMenu && (
         <FootMenu
           content={footMenu}
           setFootMenu={setFootMenu}
           setSelectedPod={setSelectedPod}
+          selectedPod={selectedPod}
         />
       )}
     </div>

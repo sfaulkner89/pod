@@ -16,33 +16,36 @@ import mongoose from "mongoose";
  * ```
  */
 export type Episode = {
-  id?: number;
+  id: string;
+  podId: Podcast["_id"] | Podcast;
   title?: string;
-  link?: string;
   description?: string;
-  guid?: string;
-  datePublished?: number;
-  datePublishedPretty?: string;
-  dateCrawled?: number;
-  enclosureUrl?: string;
-  enclosureType?: string;
-  enclosureLength?: number;
-  duration?: number;
-  explicit?: number;
-  episode?: string;
-  episodeType?: string;
-  season?: number;
+  summary?: string;
   image?: string;
-  feedItunesId?: number;
-  feedUrl?: string;
-  feedImage?: string;
-  feedId?: number;
-  podcastGuid?: string;
-  feedLanguage?: string;
-  feedDead?: number;
-  feedDuplicateOf?: string;
-  chaptersUrl?: string;
-  transcriptUrl?: string;
+  link?: string;
+  datePublished?: string;
+  encoded?: string;
+  encodedSnippet?: string;
+  enclosure: {
+    url?: string;
+    length?: string;
+    type?: string;
+  };
+  content?: string;
+  contentSnippet?: string;
+  guid: string;
+  categories: string[];
+  isoDate?: string;
+  itunes: {
+    author?: string;
+    explicit?: string;
+    duration?: string;
+    image?: string;
+    episode?: string;
+    keywords?: string;
+    episodeType?: string;
+  };
+  timesViewed?: number;
   _id: mongoose.Types.ObjectId;
 };
 
@@ -121,33 +124,36 @@ export type EpisodeDocument = mongoose.Document<
   EpisodeQueries
 > &
   EpisodeMethods & {
-    id?: number;
+    id: string;
+    podId: PodcastDocument["_id"] | PodcastDocument;
     title?: string;
-    link?: string;
     description?: string;
-    guid?: string;
-    datePublished?: number;
-    datePublishedPretty?: string;
-    dateCrawled?: number;
-    enclosureUrl?: string;
-    enclosureType?: string;
-    enclosureLength?: number;
-    duration?: number;
-    explicit?: number;
-    episode?: string;
-    episodeType?: string;
-    season?: number;
+    summary?: string;
     image?: string;
-    feedItunesId?: number;
-    feedUrl?: string;
-    feedImage?: string;
-    feedId?: number;
-    podcastGuid?: string;
-    feedLanguage?: string;
-    feedDead?: number;
-    feedDuplicateOf?: string;
-    chaptersUrl?: string;
-    transcriptUrl?: string;
+    link?: string;
+    datePublished?: string;
+    encoded?: string;
+    encodedSnippet?: string;
+    enclosure: {
+      url?: string;
+      length?: string;
+      type?: string;
+    };
+    content?: string;
+    contentSnippet?: string;
+    guid: string;
+    categories: mongoose.Types.Array<string>;
+    isoDate?: string;
+    itunes: {
+      author?: string;
+      explicit?: string;
+      duration?: string;
+      image?: string;
+      episode?: string;
+      keywords?: string;
+      episodeType?: string;
+    };
+    timesViewed?: number;
     _id: mongoose.Types.ObjectId;
   };
 

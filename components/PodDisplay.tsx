@@ -5,21 +5,24 @@ import { tss } from "tss-react";
 import PodButtons from "./PodButtons";
 import { Episode, Pod } from "../types/models";
 import { format } from "date-fns";
+import Image from "next/image";
 
 interface Props {
   content: Pod | Episode;
   onClick: React.Dispatch<React.SetStateAction<Pod | Episode | null>>;
+  selectedPod: Pod | null;
 }
 
-export default function PodDisplay({ content, onClick }: Props) {
+export default function PodDisplay({ content, onClick, selectedPod }: Props) {
+  const isEpisode = !!selectedPod;
   const [hovered, setHovered] = useState(false);
   const [imageSrc, setImageSrc] = useState(content.image);
-  const { classes: s } = useStyles({ hovered });
+  const { classes: s } = useStyles({ hovered, isEpisode });
 
   const handleImageError = (
     e: React.SyntheticEvent<HTMLImageElement, Event>
   ) => {
-    setImageSrc("/pod.webp"); // Set fallback image when an error occurs
+    setImageSrc(selectedPod?.image ?? "/pod.webp"); // Set fallback image when an error occurs
   };
 
   const contextHandler = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -35,26 +38,31 @@ export default function PodDisplay({ content, onClick }: Props) {
     >
       <div className={s.veil}>
         <div className={s.infoContainer}>
-          <h2>{content.title}</h2>
+          <h4>{content.title}</h4>
+
           <p className={s.description}>{content.description}</p>
+
           {"episodeCount" in content && <p>Episodes: {content.episodeCount}</p>}
-          {"datePublished" in content && (
+          {/* {"datePublished" in content && (
             <p>
-              Date Published: {format(content.datePublished!, "dd mm yyyy")}
+              Date Published:{" "}
+              {format(Number(content.datePublished), "dd mm yyyy")}
             </p>
-          )}
-          {"duration" in content && <p>Duration: {content.duration}</p>}
+          )} */}
+          {"duration" in content && <p>Duration: {Number(content.duration)}</p>}
         </div>
         <div className={s.veilFooter}>
           <PodButtons sub rate share />
         </div>
       </div>
       {
-        <img
-          src={imageSrc}
-          alt={content.title}
+        <Image
+          src={imageSrc!}
+          alt={content.title!}
           className={s.image}
           onError={handleImageError}
+          width={200}
+          height={200}
         />
       }
     </div>
@@ -62,8 +70,8 @@ export default function PodDisplay({ content, onClick }: Props) {
 }
 
 const useStyles = tss
-  .withParams<{ hovered: boolean }>()
-  .create(({ hovered }) => ({
+  .withParams<{ hovered: boolean; isEpisode: boolean }>()
+  .create(({ hovered, isEpisode }) => ({
     container: {
       width: "100%",
       minWidth: 100,
@@ -80,8 +88,9 @@ const useStyles = tss
       height: "100%",
       backgroundColor: "rgba(0, 0, 0, 0.5)",
       borderRadius: 10,
-      display: hovered ? "block" : "none",
+      display: hovered || isEpisode ? "block" : "none",
       transition: "display 0.5s",
+      opacity: hovered ? 1 : isEpisode ? 0.8 : 0,
       zIndex: 1,
     },
     description: {

@@ -1,8 +1,10 @@
 import user from "../../models/user";
 import { PopulatedProperty } from "../../types/models";
+import { connectDatabase } from "../../utils/db";
 import { createClient } from "../../utils/supabase/server";
 
 const getRecentlyViewed = async () => {
+  await connectDatabase();
   const supabase = createClient();
   const authId = (await supabase.auth.getUser()).data.user?.id;
   const recentlyViewed = (await user

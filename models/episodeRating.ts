@@ -17,11 +17,6 @@ const episodeRatingSchema = new mongoose.Schema(
       ref: "Episode",
       required: true,
     },
-    podId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Pod",
-      required: true,
-    },
   },
   {
     timestamps: true,
