@@ -11,3 +11,8 @@ export const getUserFromServerSession = async () => {
   }
   return await user.findOne({ authId: authUser.id });
 };
+
+export const getUserFromAuthId = async (authId: string) => {
+  await connectDatabase();
+  return await user.findOne({ authId });
+};

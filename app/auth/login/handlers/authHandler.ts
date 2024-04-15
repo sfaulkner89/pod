@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import config from "../../../../config/config";
 import user from "../../../../models/user";
 import { connectDatabase } from "../../../../utils/db";
@@ -33,12 +34,11 @@ export const verifyHandler = async (email: string, otp: string) => {
     const id = data.user.id;
     await connectDatabase();
     const existingUser = await user.findOne({ authId: id });
-    console.log(existingUser);
     if (!existingUser) {
       console.log("User not found");
       return config.paths.auth.signup + "?authId=" + id;
     }
-    return "/dashboard";
+    return redirect(config.baseUrl + config.paths.dashboard);
   }
   return config.paths.auth.login + "?error=Invalid OTP";
 };

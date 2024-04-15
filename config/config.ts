@@ -8,6 +8,7 @@ const paths = {
     login: "/auth/login",
     signup: "/auth/signup",
   },
+  dashboard: "/dashboard",
 };
 
 const configLocal = {

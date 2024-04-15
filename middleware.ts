@@ -4,12 +4,13 @@ import {
   updateSession,
 } from "@/utils/supabase/middleware";
 import { default as appConfig } from "@/config/config";
-import { connectDatabase } from "./utils/db";
 
 export async function middleware(req: NextRequest) {
   const supabase = createSupabaseReqResClient(req, NextResponse.next());
   const baseUrl = req.nextUrl.origin;
   const sessionUser = (await supabase.auth.getUser()).data.user;
+
+  console.log("MIDDLE", await supabase.auth.getSession());
 
   if (
     !sessionUser &&
