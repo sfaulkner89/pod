@@ -1,13 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { tss } from "tss-react";
 import Input from "../../../components/common/input";
 import Button from "../../../components/common/Button";
 import { useRouter, useSearchParams } from "next/navigation";
 import signUpHandler from "./handlers/signUpHandler";
 
-export default function SignUp() {
+function SignUp() {
   const router = useRouter();
   const [info, setInfo] = React.useState({
     name: "",
@@ -53,3 +53,12 @@ const useStyles = tss.create(() => ({
     gap: "10px",
   },
 }));
+
+export default function SignUpPage() {
+  const { classes: s } = useStyles();
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignUp />
+    </Suspense>
+  );
+}
