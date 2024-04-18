@@ -8,6 +8,7 @@ import { default as appConfig } from "@/config/config";
 export async function middleware(req: NextRequest) {
   const supabase = createSupabaseReqResClient(req, NextResponse.next());
   const baseUrl = req.nextUrl.origin;
+
   const sessionUser = (await supabase.auth.getUser()).data.user;
 
   if (
@@ -26,7 +27,6 @@ export async function middleware(req: NextRequest) {
   ) {
     return NextResponse.redirect(`${baseUrl}/dashboard`);
   }
-
   return await updateSession(req);
 }
 

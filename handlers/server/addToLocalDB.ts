@@ -9,7 +9,8 @@ export default async function addToLocalDB(
 ) {
   await connectDatabase();
   let added = 0;
-  const collection = type === "pod" ? pod : episode;
+  const isPod = type === "pod";
+  const collection = isPod ? pod : episode;
   const newContent = [];
   for (let entry of entries) {
     const doc = await collection.findOneAndUpdate(
@@ -22,6 +23,6 @@ export default async function addToLocalDB(
     }
     newContent.push(doc);
   }
-  console.log("added " + added + " podcasts to the database");
+  console.log("added " + added + " " + type + "s " + "to the database");
   return newContent;
 }

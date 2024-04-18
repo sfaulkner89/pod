@@ -1,15 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "megaphone.imgix.net",
-        port: "",
-        pathname: "/image/upload/**",
+        hostname: "**",
+      },
+      {
+        protocol: "http",
+        hostname: "**",
       },
     ],
+  },
+  publicRuntimeConfig: {
+    baseUrlLocal: "http://localhost:3000",
+    authServerUrlDev: process.env.SB_URL_DEV,
+    authServerAnon: process.env.SB_ANON_DEV,
   },
 };
 

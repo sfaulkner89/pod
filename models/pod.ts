@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { type Pod } from "../types/common";
+import { Pod } from "../types/models";
 
 const podSchema = new mongoose.Schema<Pod>(
   {

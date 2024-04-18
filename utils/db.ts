@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 export async function connectDatabase() {
-  if (mongoose.connection.readyState) {
+  if (mongoose.connection?.readyState) {
     return;
   }
   const uri =

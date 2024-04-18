@@ -1,12 +1,12 @@
 "use client";
 
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect } from "react";
 import { tss } from "tss-react";
 import ratingHandler from "../handlers/client/ratingHandler";
 
 type Props = {
   rating?: number;
-  setRating: React.Dispatch<React.SetStateAction<number>>;
+  setRating: (rating: number) => void;
 };
 
 export default function Rater({ rating = 0, setRating }: Props) {
@@ -15,6 +15,10 @@ export default function Rater({ rating = 0, setRating }: Props) {
   const [stars, setStars] = React.useState<ReactElement[]>(
     ratingHandler(rating)
   );
+
+  useEffect(() => {
+    setStars(ratingHandler(rating));
+  }, [rating]);
 
   const clickHandler = (index: number) => {
     if (rating === index + 1) {

@@ -20,9 +20,8 @@ export default function Search() {
   const [episodes, setEpisodes] = React.useState([]);
   const [footMenu, setFootMenu] = React.useState<Pod | Episode | null>(null);
   const [selectedPod, setSelectedPod] = React.useState<Pod | null>(null);
-  const [podSearchTerm, setPodSearchTerm] = React.useState("");
 
-  const { classes: s } = useStyles();
+  const { classes: s } = useStyles({ footMenu: !!footMenu });
 
   useEffect(() => {
     if (searchTerm.length < 3) return;
@@ -33,7 +32,11 @@ export default function Search() {
     // Set a timeout to run the search after a delay.
     timeoutId = setTimeout(async () => {
       if (selectedPod) {
-        const data = await searchEpisodes(selectedPod.id!, searchTerm);
+        const data = await searchEpisodes(
+          selectedPod._id.toString(),
+          selectedPod.url!,
+          searchTerm
+        );
         setEpisodes(data);
         return;
       }
@@ -79,39 +82,44 @@ export default function Search() {
         pods={selectedPod ? episodes : pods}
         footMenu={footMenu}
         setFootMenu={setFootMenu}
+        selectedPod={selectedPod}
       />
       {footMenu && (
         <FootMenu
           content={footMenu}
           setFootMenu={setFootMenu}
           setSelectedPod={setSelectedPod}
+          selectedPod={selectedPod}
         />
       )}
     </div>
   );
 }
 
-const useStyles = tss.create(() => ({
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "10px",
-    width: "100%",
-    paddingTop: "20px",
-  },
+const useStyles = tss
+  .withParams<{ footMenu: boolean }>()
+  .create(({ footMenu }) => ({
+    container: {
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "10px",
+      width: "100%",
+      paddingTop: "20px",
+      overflowY: footMenu ? "hidden" : "scroll",
+    },
 
-  image: {
-    width: "100%",
-    maxWidth: "200px",
-    borderRadius: "10px",
-  },
-  backButton: {
-    position: "fixed",
-    top: "10px",
-    left: "10px",
-    cursor: "pointer",
-    fontSize: "30px",
-  },
-}));
+    image: {
+      width: "100%",
+      maxWidth: "200px",
+      borderRadius: "10px",
+    },
+    backButton: {
+      position: "fixed",
+      top: "10px",
+      left: "10px",
+      cursor: "pointer",
+      fontSize: "30px",
+    },
+  }));

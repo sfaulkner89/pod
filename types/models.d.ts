@@ -16,33 +16,36 @@ import mongoose from "mongoose";
  * ```
  */
 export type Episode = {
-  id?: number;
+  id: string;
+  podId: Podcast["_id"] | Podcast;
   title?: string;
-  link?: string;
   description?: string;
-  guid?: string;
-  datePublished?: number;
-  datePublishedPretty?: string;
-  dateCrawled?: number;
-  enclosureUrl?: string;
-  enclosureType?: string;
-  enclosureLength?: number;
-  duration?: number;
-  explicit?: number;
-  episode?: string;
-  episodeType?: string;
-  season?: number;
+  summary?: string;
   image?: string;
-  feedItunesId?: number;
-  feedUrl?: string;
-  feedImage?: string;
-  feedId?: number;
-  podcastGuid?: string;
-  feedLanguage?: string;
-  feedDead?: number;
-  feedDuplicateOf?: string;
-  chaptersUrl?: string;
-  transcriptUrl?: string;
+  link?: string;
+  datePublished?: string;
+  encoded?: string;
+  encodedSnippet?: string;
+  enclosure: {
+    url?: string;
+    length?: string;
+    type?: string;
+  };
+  content?: string;
+  contentSnippet?: string;
+  guid: string;
+  categories: string[];
+  isoDate?: string;
+  itunes: {
+    author?: string;
+    explicit?: string;
+    duration?: string;
+    image?: string;
+    episode?: string;
+    keywords?: string;
+    episodeType?: string;
+  };
+  timesViewed?: number;
   _id: mongoose.Types.ObjectId;
 };
 
@@ -121,33 +124,36 @@ export type EpisodeDocument = mongoose.Document<
   EpisodeQueries
 > &
   EpisodeMethods & {
-    id?: number;
+    id: string;
+    podId: PodcastDocument["_id"] | PodcastDocument;
     title?: string;
-    link?: string;
     description?: string;
-    guid?: string;
-    datePublished?: number;
-    datePublishedPretty?: string;
-    dateCrawled?: number;
-    enclosureUrl?: string;
-    enclosureType?: string;
-    enclosureLength?: number;
-    duration?: number;
-    explicit?: number;
-    episode?: string;
-    episodeType?: string;
-    season?: number;
+    summary?: string;
     image?: string;
-    feedItunesId?: number;
-    feedUrl?: string;
-    feedImage?: string;
-    feedId?: number;
-    podcastGuid?: string;
-    feedLanguage?: string;
-    feedDead?: number;
-    feedDuplicateOf?: string;
-    chaptersUrl?: string;
-    transcriptUrl?: string;
+    link?: string;
+    datePublished?: string;
+    encoded?: string;
+    encodedSnippet?: string;
+    enclosure: {
+      url?: string;
+      length?: string;
+      type?: string;
+    };
+    content?: string;
+    contentSnippet?: string;
+    guid: string;
+    categories: mongoose.Types.Array<string>;
+    isoDate?: string;
+    itunes: {
+      author?: string;
+      explicit?: string;
+      duration?: string;
+      image?: string;
+      episode?: string;
+      keywords?: string;
+      episodeType?: string;
+    };
+    timesViewed?: number;
     _id: mongoose.Types.ObjectId;
   };
 
@@ -267,9 +273,9 @@ export type EpisodeCommentDocument = mongoose.Document<
  * ```
  */
 export type EpisodeLike = {
+  liked?: boolean;
   userId: User["_id"] | User;
   episodeId: Episode["_id"] | Episode;
-  podId: Pod["_id"] | Pod;
   _id: mongoose.Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
@@ -353,9 +359,9 @@ export type EpisodeLikeDocument = mongoose.Document<
   EpisodeLikeQueries
 > &
   EpisodeLikeMethods & {
+    liked?: boolean;
     userId: UserDocument["_id"] | UserDocument;
     episodeId: EpisodeDocument["_id"] | EpisodeDocument;
-    podId: PodDocument["_id"] | PodDocument;
     _id: mongoose.Types.ObjectId;
     createdAt?: Date;
     updatedAt?: Date;
@@ -373,7 +379,6 @@ export type EpisodeRating = {
   rating: number;
   userId: User["_id"] | User;
   episodeId: Episode["_id"] | Episode;
-  podId: Pod["_id"] | Pod;
   _id: mongoose.Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
@@ -460,10 +465,114 @@ export type EpisodeRatingDocument = mongoose.Document<
     rating: number;
     userId: UserDocument["_id"] | UserDocument;
     episodeId: EpisodeDocument["_id"] | EpisodeDocument;
-    podId: PodDocument["_id"] | PodDocument;
     _id: mongoose.Types.ObjectId;
     createdAt?: Date;
     updatedAt?: Date;
+  };
+
+/**
+ * Lean version of InteractionDocument
+ *
+ * This has all Mongoose getters & functions removed. This type will be returned from `InteractionDocument.toObject()`. To avoid conflicts with model names, use the type alias `InteractionObject`.
+ * ```
+ * const interactionObject = interaction.toObject();
+ * ```
+ */
+export type Interaction = {
+  userId: User["_id"] | User;
+  contentId: mongoose.Types.ObjectId;
+  contentType: "pod" | "episode";
+  rating?: number;
+  liked?: boolean;
+  listened?: boolean;
+  _id: mongoose.Types.ObjectId;
+};
+
+/**
+ * Lean version of InteractionDocument (type alias of `Interaction`)
+ *
+ * Use this type alias to avoid conflicts with model names:
+ * ```
+ * import { Interaction } from "../models"
+ * import { InteractionObject } from "../interfaces/mongoose.gen.ts"
+ *
+ * const interactionObject: InteractionObject = interaction.toObject();
+ * ```
+ */
+export type InteractionObject = Interaction;
+
+/**
+ * Mongoose Query type
+ *
+ * This type is returned from query functions. For most use cases, you should not need to use this type explicitly.
+ */
+export type InteractionQuery = mongoose.Query<
+  any,
+  InteractionDocument,
+  InteractionQueries
+> &
+  InteractionQueries;
+
+/**
+ * Mongoose Query helper types
+ *
+ * This type represents `InteractionSchema.query`. For most use cases, you should not need to use this type explicitly.
+ */
+export type InteractionQueries = {};
+
+export type InteractionMethods = {};
+
+export type InteractionStatics = {};
+
+/**
+ * Mongoose Model type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Interaction = mongoose.model<InteractionDocument, InteractionModel>("Interaction", InteractionSchema);
+ * ```
+ */
+export type InteractionModel = mongoose.Model<
+  InteractionDocument,
+  InteractionQueries
+> &
+  InteractionStatics;
+
+/**
+ * Mongoose Schema type
+ *
+ * Assign this type to new Interaction schema instances:
+ * ```
+ * const InteractionSchema: InteractionSchema = new mongoose.Schema({ ... })
+ * ```
+ */
+export type InteractionSchema = mongoose.Schema<
+  InteractionDocument,
+  InteractionModel,
+  InteractionMethods,
+  InteractionQueries
+>;
+
+/**
+ * Mongoose Document type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Interaction = mongoose.model<InteractionDocument, InteractionModel>("Interaction", InteractionSchema);
+ * ```
+ */
+export type InteractionDocument = mongoose.Document<
+  mongoose.Types.ObjectId,
+  InteractionQueries
+> &
+  InteractionMethods & {
+    userId: UserDocument["_id"] | UserDocument;
+    contentId: mongoose.Types.ObjectId;
+    contentType: "pod" | "episode";
+    rating?: number;
+    liked?: boolean;
+    listened?: boolean;
+    _id: mongoose.Types.ObjectId;
   };
 
 /**
