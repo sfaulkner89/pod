@@ -1,20 +1,13 @@
+import { Error } from "mongoose";
 import user from "../../models/user";
-import { Episode, Pod } from "../../types/models";
-import { connectDatabase } from "../../utils/db";
-import { createClient } from "../../utils/supabase/server";
+import { User } from "../../types/models";
 
-const getPopularWithFollowing = async () => {
-  await connectDatabase();
-  const supabase = createClient();
-  const authId = (await supabase.auth.getUser()).data.user?.id;
-  if (!authId) {
-    return null;
-  }
+const getPopularWithFollowing = async (currentUser: User) => {
   const popularWithFriends = await user
     .aggregate([
       {
         $match: {
-          authId: authId,
+          _id: currentUser?._id,
         },
       },
       {
@@ -169,7 +162,7 @@ const getPopularWithFollowing = async () => {
         },
       },
     ])
-    .catch((e) => {
+    .catch((e: Error) => {
       console.error(e);
       return null;
     });

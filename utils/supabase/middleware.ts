@@ -55,6 +55,8 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
+  console.log("Updating session");
+
   await createSupabaseReqResClient(request, response).auth.getUser();
 
   return response;

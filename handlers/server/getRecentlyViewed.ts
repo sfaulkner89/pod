@@ -1,23 +1,33 @@
-import user from "../../models/user";
-import { PopulatedProperty } from "../../types/models";
+import interaction from "../../models/interaction";
+import { User } from "../../types/models";
 import { connectDatabase } from "../../utils/db";
-import { createClient } from "../../utils/supabase/server";
+import { getUserFromServerSession } from "./getUser";
 
-const getRecentlyViewed = async () => {
-  await connectDatabase();
-  const supabase = createClient();
-  const authId = (await supabase.auth.getUser()).data.user?.id;
-  const recentlyViewed = (await user
-    .findOne({ authId: authId })
-    .populate("recentlyViewedEpisodes")
-    .populate("recentlyViewedPods")) as PopulatedProperty<
-    PopulatedProperty<any, "recentlyViewedEpisodes">,
-    "recentlyViewedPods"
-  >;
+const getRecentlyViewed = async (user: User) => {
+  const recentlyViewed = await interaction
+    .find({
+      userId: user?._id,
+    })
+    .sort({ updatedAt: -1 })
+    .limit(10)
+    .populate("contentId")
+    .exec()
+    .catch((e) => {
+      console.error(e);
+      return [];
+    });
+
+  const recentlyViewedEpisodes = recentlyViewed
+    .filter((ep) => ep.contentType === "episode")
+    .map((ep) => ep.contentId);
+
+  const recentlyViewedPods = recentlyViewed
+    .filter((ep) => ep.contentType === "pod")
+    .map((ep) => ep.contentId);
 
   return {
-    episodes: recentlyViewed?.recentlyViewedEpisodes || [],
-    pods: recentlyViewed?.recentlyViewedPods || [],
+    episodes: recentlyViewedEpisodes ?? [],
+    pods: recentlyViewedPods ?? [],
   };
 };
 

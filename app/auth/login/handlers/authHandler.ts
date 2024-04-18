@@ -6,9 +6,8 @@ import user from "../../../../models/user";
 import { connectDatabase } from "../../../../utils/db";
 import { createClient } from "../../../../utils/supabase/server";
 
-const client = createClient();
-
 export const loginHandler = async (email: string) => {
+  const client = createClient();
   const { error } = await client.auth.signInWithOtp({
     email,
     options: {
@@ -21,6 +20,7 @@ export const loginHandler = async (email: string) => {
 };
 
 export const verifyHandler = async (email: string, otp: string) => {
+  const client = createClient();
   const { data, error } = await client.auth.verifyOtp({
     email,
     token: otp,
@@ -38,7 +38,7 @@ export const verifyHandler = async (email: string, otp: string) => {
       console.log("User not found");
       return config.paths.auth.signup + "?authId=" + id;
     }
-    return redirect(config.baseUrl + config.paths.dashboard);
+    return config.paths.dashboard;
   }
   return config.paths.auth.login + "?error=Invalid OTP";
 };

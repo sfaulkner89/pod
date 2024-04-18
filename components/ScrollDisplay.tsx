@@ -7,15 +7,26 @@ import PodDisplay from "./PodDisplay";
 
 type Props = {
   pods: Pod[] | Episode[];
+  selectedPod: Pod | Episode | null;
+  setSelectedPod: React.Dispatch<React.SetStateAction<Pod | Episode | null>>;
 };
 
-export default function ScrollDisplay({ pods }: Props) {
+export default function ScrollDisplay({
+  pods,
+  selectedPod,
+  setSelectedPod,
+}: Props) {
   const { classes: s } = useStyles();
 
   return (
     <div className={s.container}>
       {pods.map((content) => (
-        <PodDisplay content={content} onClick={() => {}} key={content.id} />
+        <PodDisplay
+          content={content}
+          onClick={setSelectedPod}
+          key={content.id}
+          selectedPod={selectedPod}
+        />
       ))}
     </div>
   );

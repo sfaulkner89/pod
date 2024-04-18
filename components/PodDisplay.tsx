@@ -1,16 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { tss } from "tss-react";
 import PodButtons from "./PodButtons";
 import { Episode, Pod } from "../types/models";
 import { format } from "date-fns";
 import Image from "next/image";
+import { initialInfo } from "./FootMenu";
 
 interface Props {
   content: Pod | Episode;
   onClick: React.Dispatch<React.SetStateAction<Pod | Episode | null>>;
-  selectedPod: Pod | null;
+  selectedPod: Pod | Episode | null;
 }
 
 export default function PodDisplay({ content, onClick, selectedPod }: Props) {
@@ -18,6 +19,10 @@ export default function PodDisplay({ content, onClick, selectedPod }: Props) {
   const [hovered, setHovered] = useState(false);
   const [imageSrc, setImageSrc] = useState(content.image);
   const { classes: s } = useStyles({ hovered, isEpisode });
+
+  useEffect(() => {
+    setImageSrc(content.image);
+  }, [content]);
 
   const handleImageError = (
     e: React.SyntheticEvent<HTMLImageElement, Event>
@@ -33,12 +38,12 @@ export default function PodDisplay({ content, onClick, selectedPod }: Props) {
   return (
     <div
       className={s.container}
-      onMouseEnter={(e) => contextHandler(e)}
+      onClick={contextHandler}
       onMouseLeave={() => setHovered(false)}
     >
       <div className={s.veil}>
         <div className={s.infoContainer}>
-          <h4>{content.title}</h4>
+          <h4 className={s.title}>{content.title}</h4>
 
           <p className={s.description}>{content.description}</p>
 
@@ -52,7 +57,13 @@ export default function PodDisplay({ content, onClick, selectedPod }: Props) {
           {"duration" in content && <p>Duration: {Number(content.duration)}</p>}
         </div>
         <div className={s.veilFooter}>
-          <PodButtons sub rate share />
+          {/* <PodButtons
+            sub
+            share
+            listened
+            initial={initialInfo}
+            onClick={() => {}}
+          /> */}
         </div>
       </div>
       {
@@ -92,6 +103,13 @@ const useStyles = tss
       transition: "display 0.5s",
       opacity: hovered ? 1 : isEpisode ? 0.8 : 0,
       zIndex: 1,
+    },
+    title: {
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      display: "-webkit-box",
+      WebkitLineClamp: 3,
+      WebkitBoxOrient: "vertical",
     },
     description: {
       overflow: "hidden",

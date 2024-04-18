@@ -1,22 +1,30 @@
 "use client";
 
-import React, { ReactEventHandler, useEffect } from "react";
+import React, { MouseEventHandler, useEffect } from "react";
 import { tss } from "tss-react";
 import PodButtons from "./PodButtons";
 import Rater from "./Rater";
 import { keyframes } from "@emotion/react";
 import { Episode, Pod } from "../types/models";
-import getRating from "../handlers/server/getRating";
 import Image from "next/image";
-import toggleLike from "../handlers/server/toggleFavorite";
-import getContentInfo from "../handlers/server/getRating";
-import changeRating from "../handlers/server/changeRating";
+import getInteractionInfo from "../handlers/server/getInteractionInfo";
+import interact from "../handlers/client/interact";
+import { InteractionKeys } from "../types/common";
+
+let timeoutId: NodeJS.Timeout;
 
 type Props = {
   setFootMenu: (value: null) => void;
   setSelectedPod: React.Dispatch<React.SetStateAction<Pod | null>>;
   selectedPod: Pod | null;
   content: Pod | Episode;
+};
+
+export const initialInfo = {
+  rating: 0,
+  liked: false,
+  listened: false,
+  sub: false,
 };
 
 export default function FootMenu({
@@ -28,35 +36,30 @@ export default function FootMenu({
   const isPod = "episodeCount" in content;
   const containerRef = React.useRef<HTMLDivElement>(null);
   const backgroundRef = React.useRef<HTMLDivElement>(null);
-  const [info, setInfo] = React.useState({
-    rating: 0,
-    liked: false,
-  });
+  const [info, setInfo] = React.useState(initialInfo);
   const [showDesc, setShowDesc] = React.useState(true);
   const [imageSrc, setImageSrc] = React.useState(content.image);
 
   useEffect(() => {
     const userInfo = async () => {
-      const userInfo = await getContentInfo(
+      const userInfo = await getInteractionInfo(
         content._id!,
         isPod ? "pod" : "episode"
       );
-      setInfo({
-        rating: userInfo?.rating || 0,
-        liked: userInfo?.liked || false,
-      });
+      setInfo(userInfo ?? initialInfo);
     };
     userInfo();
   }, []);
 
+  const outsideClick = (e: MouseEvent) =>
+    containerRef.current &&
+    backgroundRef.current &&
+    !containerRef.current.contains(e.target as Node) &&
+    backgroundRef.current.contains(e.target as Node);
+
   useEffect(() => {
     const listener = (e: MouseEvent) => {
-      if (
-        containerRef.current &&
-        backgroundRef.current &&
-        !containerRef.current.contains(e.target as Node) &&
-        backgroundRef.current.contains(e.target as Node)
-      ) {
+      if (outsideClick(e)) {
         setFootMenu(null);
       }
     };
@@ -69,20 +72,21 @@ export default function FootMenu({
     setImageSrc(selectedPod?.image ?? "/pod.webp"); // Set fallback image when an error occurs
   };
 
-  const like = () => {
-    toggleLike(content._id, isPod ? "pod" : "episode");
-    setInfo((info) => ({
-      ...info,
-      liked: !info.liked,
-    }));
-  };
+  const interactionHandler = async (
+    key: InteractionKeys,
+    value: number | boolean
+  ) => {
+    setInfo((prev) => ({ ...prev, [key]: value }));
+    if (timeoutId) clearTimeout(timeoutId);
 
-  const rate = (newRating: number) => {
-    changeRating(content._id!, isPod ? "pod" : "episode", newRating);
-    setInfo((info) => ({
-      ...info,
-      rating: newRating,
-    }));
+    timeoutId = setTimeout(
+      async () =>
+        interact(isPod ? "pod" : "episode", content._id, {
+          ...info,
+          [key]: value,
+        }),
+      500
+    );
   };
 
   const { classes: s } = useStyles({ liked: info.liked });
@@ -110,9 +114,21 @@ export default function FootMenu({
         )}
       </div>
       <div className={s.container} ref={containerRef}>
-        <PodButtons sub share like size={30} />
+        <PodButtons
+          sub
+          share
+          listened
+          size={30}
+          onClick={async (key: any, value: boolean) =>
+            await interactionHandler(key, value)
+          }
+          initial={info ?? initialInfo}
+        />
         <p>Rating</p>
-        <Rater setRating={rate} rating={info.rating} />
+        <Rater
+          setRating={async (r: number) => await interactionHandler("rating", r)}
+          rating={info.rating}
+        />
         {isPod && (
           <button
             className={s.button}
@@ -124,7 +140,10 @@ export default function FootMenu({
             Search Episodes
           </button>
         )}
-        <button className={s.likeButton} onClick={like}>
+        <button
+          className={s.likeButton}
+          onClick={async () => await interactionHandler("liked", !info.liked)}
+        >
           Like
         </button>
         <button className={s.button} onClick={() => setFootMenu(null)}>
@@ -144,7 +163,7 @@ const slideUp = keyframes`
   }
 `;
 
-const useStyles = tss.withParams<{ liked: boolean }>().create((liked) => ({
+const useStyles = tss.withParams<{ liked: boolean }>().create(({ liked }) => ({
   background: {
     position: "fixed",
     display: "flex",
@@ -239,7 +258,7 @@ const useStyles = tss.withParams<{ liked: boolean }>().create((liked) => ({
     paddingBottom: 5,
   },
   likeButton: {
-    backgroundColor: liked ? "red" : "transparent",
+    backgroundColor: "transparent",
     border: "none",
     boxShadow: "none",
     color: liked ? "green" : "white",

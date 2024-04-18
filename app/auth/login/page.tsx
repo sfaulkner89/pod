@@ -32,8 +32,8 @@ export default function Login() {
       return;
     }
     const redUrl = await verifyHandler(email, otp);
-    // console.log(redUrl);
-    // router.push(redUrl);
+    console.log(redUrl);
+    router.push(redUrl);
   };
 
   return (

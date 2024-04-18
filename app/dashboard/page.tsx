@@ -1,9 +1,12 @@
-import React from "react";
+"use client";
+
+import React, { useEffect } from "react";
 import s from "./page.module.css";
 import getDashboardData from "./getDashboardData";
 import ScrollDisplay from "../../components/ScrollDisplay";
 import { Episode, Pod } from "../../types/models";
 import Title from "../../components/common/Title";
+import FootMenu from "../../components/FootMenu";
 
 type DashboardData = {
   popularWithFriends: {
@@ -20,8 +23,31 @@ type DashboardData = {
   };
 };
 
-export default async function Dashboard() {
-  const data: DashboardData = await getDashboardData();
+export default function Dashboard() {
+  const [footMenu, setFootMenu] = React.useState<Pod | Episode | null>(null);
+  const [selectedPod, setSelectedPod] = React.useState<Pod | null>(null);
+  const [data, setData] = React.useState<DashboardData>({
+    popularWithFriends: {
+      pods: [],
+      episodes: [],
+    },
+    recentlyViewed: {
+      episodes: [],
+      pods: [],
+    },
+    popularWithAll: {
+      pods: [],
+      episodes: [],
+    },
+  });
+
+  useEffect(() => {
+    const getData = async () => {
+      const dashboardData: DashboardData = await getDashboardData();
+      setData(dashboardData);
+    };
+    getData();
+  }, []);
 
   const sections = [
     {
@@ -63,9 +89,21 @@ export default async function Dashboard() {
           section.condition && (
             <React.Fragment key={index}>
               <Title>{section.title}</Title>
-              <ScrollDisplay pods={section.data} />
+              <ScrollDisplay
+                pods={section.data}
+                selectedPod={footMenu}
+                setSelectedPod={setFootMenu}
+              />
             </React.Fragment>
           )
+      )}
+      {footMenu && (
+        <FootMenu
+          setFootMenu={setFootMenu}
+          content={footMenu}
+          setSelectedPod={setSelectedPod}
+          selectedPod={selectedPod}
+        />
       )}
     </div>
   );

@@ -3,13 +3,11 @@ import { connectDatabase } from "../../utils/db";
 import { createClient } from "../../utils/supabase/server";
 
 export const getUserFromServerSession = async () => {
+  "use server";
   await connectDatabase();
   const supabase = createClient();
   const authUser = (await supabase.auth.getUser()).data.user;
-  if (!authUser) {
-    return null;
-  }
-  return await user.findOne({ authId: authUser.id });
+  return (await getUserFromAuthId(authUser?.id!)) ?? null;
 };
 
 export const getUserFromAuthId = async (authId: string) => {

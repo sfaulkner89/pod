@@ -7,6 +7,7 @@ export type rssObject = {
   items: Episode[];
   image: {
     link: string;
+    url: string;
   };
 };
 
@@ -16,7 +17,7 @@ const cleanEpisodeKeysAndAddInfo = (rssObject: rssObject, podId: string) => {
     episode.encodedSnippet = episode["content:encodedSnippet" as keyof Episode];
     episode.description = rssObject.description;
     episode.summary = rssObject.summary;
-    episode.image = rssObject.image.link;
+    episode.image = rssObject.image.url;
     episode.podId = podId;
     episode.id = episode.guid;
     episode.datePublished = episode["pubDate" as keyof Episode];

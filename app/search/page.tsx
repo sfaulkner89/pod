@@ -20,9 +20,8 @@ export default function Search() {
   const [episodes, setEpisodes] = React.useState([]);
   const [footMenu, setFootMenu] = React.useState<Pod | Episode | null>(null);
   const [selectedPod, setSelectedPod] = React.useState<Pod | null>(null);
-  const [podSearchTerm, setPodSearchTerm] = React.useState("");
 
-  const { classes: s } = useStyles();
+  const { classes: s } = useStyles({ footMenu: !!footMenu });
 
   useEffect(() => {
     if (searchTerm.length < 3) return;
@@ -97,27 +96,30 @@ export default function Search() {
   );
 }
 
-const useStyles = tss.create(() => ({
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "10px",
-    width: "100%",
-    paddingTop: "20px",
-  },
+const useStyles = tss
+  .withParams<{ footMenu: boolean }>()
+  .create(({ footMenu }) => ({
+    container: {
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "10px",
+      width: "100%",
+      paddingTop: "20px",
+      overflowY: footMenu ? "hidden" : "scroll",
+    },
 
-  image: {
-    width: "100%",
-    maxWidth: "200px",
-    borderRadius: "10px",
-  },
-  backButton: {
-    position: "fixed",
-    top: "10px",
-    left: "10px",
-    cursor: "pointer",
-    fontSize: "30px",
-  },
-}));
+    image: {
+      width: "100%",
+      maxWidth: "200px",
+      borderRadius: "10px",
+    },
+    backButton: {
+      position: "fixed",
+      top: "10px",
+      left: "10px",
+      cursor: "pointer",
+      fontSize: "30px",
+    },
+  }));
